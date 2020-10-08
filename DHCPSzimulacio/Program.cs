@@ -61,7 +61,7 @@ namespace DHCPSzimulacio
             }
         }
 
-        static string CimEgyenlo(string cim)
+        static string CimEgyelNo(string cim)
         {
             /*
             cim = "192.168.10.100"
@@ -89,10 +89,47 @@ namespace DHCPSzimulacio
              * 
              * x Megnézzük hogy request-e?
              * ki kell szedni a mac-címet a parancsból
-             */ 
+             */
+            
             if (parancs.Contains("request"))
             {
-                
+                string[] a = parancs.Split(';');
+                string mac = a[1];
+
+                if (dhcp.ContainsKey(mac))
+                {
+                    Console.WriteLine($"{mac} --> {dhcp[mac]}");
+                }
+                else
+                {
+                    if (reserved.ContainsKey(mac))
+                    {
+                        Console.WriteLine($"Res. {mac} --> {reserved[mac]}");
+                        dhcp.Add(mac, reserved[mac]);
+                    }
+                    else
+                    {
+                        string indulo = "192.168.10.100";
+                        int okt4 = 100;
+
+                        while (okt4 < 200 && (dhcp.ContainsValue(indulo)
+                                          || reserved.ContainsValue(indulo)
+                                          || excluded.Contains(indulo)))
+                        {
+                            okt4++;
+                            indulo = CimEgyelNo(indulo);
+                        }
+                        if (okt4 < 200)
+                        {
+                            Console.WriteLine($"Kiosztott {mac} --> {indulo}");
+                            dhcp.Add(mac, indulo);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{mac} nincs IP!");
+                        }
+                    }
+                }
             }
             else
             {
@@ -117,7 +154,7 @@ namespace DHCPSzimulacio
             BeolvasDictionary(reserved, "reserved.csv");
             #endregion
 
-            Feladat("request;ebben nics semmi");
+            Feladatok();
 
             Console.WriteLine("\nvége...");
 
