@@ -12,17 +12,18 @@ namespace DHCPSzimulacio
         static List<string> excluded = new List<string>();
         static Dictionary<string, string> reserved = new Dictionary<string, string>();
         static Dictionary<string, string> dhcp = new Dictionary<string, string>();
+        static List<string> commands = new List<string>();
 
-        static void BeolvasExcluded()
+        static void BeolvasList(List<string> l, string filenev)
         {
             try
             {
-                StreamReader file = new StreamReader("excluded.csv");
+                StreamReader file = new StreamReader(filenev);
                 try
                 {
                     while (!file.EndOfStream)
                     {
-                        excluded.Add(file.ReadLine());
+                        l.Add(file.ReadLine());
                     }
 
                 }
@@ -81,18 +82,42 @@ namespace DHCPSzimulacio
             return adatok[0] + "." + adatok[1] + "." + adatok[2] + "." + okt4.ToString();
         }
 
+        static void Feladat(string parancs)
+        {
+            /* parancs = "request;D19313570A82"
+             * először csak request paranccsal foglalkozunk
+             * 
+             * x Megnézzük hogy request-e?
+             * ki kell szedni a mac-címet a parancsból
+             */ 
+            if (parancs.Contains("request"))
+            {
+                
+            }
+            else
+            {
+                Console.WriteLine("Nem ok");
+            }
+        }
+
+        static void Feladatok()
+        {
+            foreach (var command in commands)
+            {
+                Feladat(command);
+            }
+        }
+
         static void Main(string[] args)
         {
-            BeolvasExcluded();
+            #region Beolvasások
+            BeolvasList(excluded, "excluded.csv");
+            BeolvasList(commands, "test.csv");
             BeolvasDictionary(dhcp, "dhcp.csv");
             BeolvasDictionary(reserved, "reserved.csv");
+            #endregion
 
-            foreach (var e in reserved)
-            {
-                Console.WriteLine(e);
-            }
-
-            Console.WriteLine(CimEgyenlo("192.168.10.100"));
+            Feladat("request;ebben nics semmi");
 
             Console.WriteLine("\nvége...");
 
